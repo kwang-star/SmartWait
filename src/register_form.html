@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register New User</title>
+    <link rel="stylesheet" href=""> 
+</head>
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <!-- Scripts for Angular Material -- Need to figure out
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-messages.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
+    <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/t-114/svg-assets-cache.js"></script>
+    <script src="https://gitcdn.xyz/cdn/angular/bower-material/v1.2.5/angular-material.js"></script> -->
+
+    <h1>Register New User</h1>
+    <div ng-app="myApp" ng-controller="myCtrl">
+        First Name: <input type="text" name="firstName"><br>
+        Last Name: <input type="text" name="lastName"><br>
+        <br>
+        Date Of Birth: <!-- Currently Not Working, This is DatePicker with validation for date input is within min and max
+            <md-content ng-controller="myCtrl as ctrl" layout-padding="" ng-cloak="" class="datepickerdemoValidations" ng-app="myApp">
+            <h4>Date-picker with min date and max date</h4>
+            <md-datepicker ng-model="ctrl.myDate" md-placeholder="Enter date" md-min-date="ctrl.minDate" md-max-date="ctrl.maxDate"></md-datepicker>
+        </md-content> <br> -->{{today | date:'yyyy-MM-dd'}}
+        <input type="date" name="dob"
+                            min="1900-01-01" max={{today}}><br>
+        Gender: <select ng-model="selectedGender" ng-options="x for x in genders">
+        </select><br>
+        Insurance: <input type="text" name="insurance"><br>
+        <button class="btn" id="submit">Submit</button>
+    </div>
+
+    <script src="myApp.js"></script>
+    <script src="myCtrl.js"></script>
+    <noscript>You need to enable JavaScript to view the full site.</noscript>
+</body>
+</html>
