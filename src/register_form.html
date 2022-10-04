@@ -9,35 +9,45 @@
 </head>
 <body>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-    <!-- Scripts for Angular Material -- Need to figure out
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-animate.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-aria.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-messages.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js"></script>
-    <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/t-114/svg-assets-cache.js"></script>
-    <script src="https://gitcdn.xyz/cdn/angular/bower-material/v1.2.5/angular-material.js"></script> -->
-
-    <h1>Register New User</h1>
-    <div ng-app="myApp" ng-controller="myCtrl">
-        First Name: <input type="text" name="firstName"><br>
-        Last Name: <input type="text" name="lastName"><br>
-        <br>
-        Date Of Birth: <!-- Currently Not Working, This is DatePicker with validation for date input is within min and max
-            <md-content ng-controller="myCtrl as ctrl" layout-padding="" ng-cloak="" class="datepickerdemoValidations" ng-app="myApp">
-            <h4>Date-picker with min date and max date</h4>
-            <md-datepicker ng-model="ctrl.myDate" md-placeholder="Enter date" md-min-date="ctrl.minDate" md-max-date="ctrl.maxDate"></md-datepicker>
-        </md-content> <br> -->{{today | date:'yyyy-MM-dd'}}
-        <input type="date" name="dob"
-                            min="1900-01-01" max={{today}}><br>
-        Gender: <select ng-model="selectedGender" ng-options="x for x in genders">
-        </select><br>
-        Insurance: <input type="text" name="insurance"><br>
-        <button class="btn" id="submit">Submit</button>
+    
+    <div ng-app="myApp" ng-controller="myCtrl" class="container">
+        <form action="register_form.html" method="post" id="register">
+            <h1>Register New User</h1>
+            <div class="field">
+                <label for="fname">First Name:</label>
+                <input type="text" id="fname" ng-model="fname" placeholder="Enter your firstname" />
+                <small></small>
+            </div>
+            <div class="field">
+                <label for="lname">Last Name:</label>
+                <input type="text" id="lname" ng-model="lname" placeholder="Enter your lastname" />
+                <small></small>
+            </div>
+            <div class="field">
+                <label for="email">Email:</label>
+                <input type="text" id="email" ng-model="email" placeholder="Enter your email address" />
+                <small></small>
+            </div>
+            <!-- DOB Violation of putting non-passive event on scroll element (this is likely due to the 
+            $scope.today) -->
+            <div class="field">
+                <label for="dob">Date Of Birth:</label>
+                <input type="date" ng-model="dob" id="dob" min="1870-01-01" max={{today}}>
+                <small></small>
+            </div>
+            <div>
+                <label for="gender">Gender:</label>
+                <select ng-model="gend.selected" ng-options="value.id as value.value for value in genders" id="gender">
+                    <option value=""></option>
+                </select>
+                
+                <small></small>
+            </div>
+            <div class="field">
+                <button type="submit">Submit</button>
+            </div>
+        </form>
     </div>
-
     <script src="myApp.js"></script>
     <script src="myCtrl.js"></script>
     <noscript>You need to enable JavaScript to view the full site.</noscript>
