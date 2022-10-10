@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My First Web Page</h1>
+<p>My First Paragraph</p>
+
+<p id="demo"></p>
+
+<script>
+document.getElementById("demo").innerHTML = "innerHTML:" + (5 + 6);
+document.addEventListener('DOMContentLoaded', function() {
+    document.write("Using document.write() after an HTML document is loaded, will delete all existing HTML:");
+}, false);
+</script>
+
+</body>
+</html>

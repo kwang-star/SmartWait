@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>My First Web Page</h1>
+<p>My First Paragraph</p>
+
+<p id="demo"></p>
+
+<button type="button" onclick="document.write('The document.write() method should only be used for testing.')">Try it</button>
+<button onclick="window.print()">Print this page</button>
+
+
+<script>
+document.getElementById("demo").innerHTML = "innerHTML:" + (5 + 6);
+document.write("document write:" + (6 + 6));
+window.alert("window alert:");
+alert("simply alert box:");
+console.log("for debugging");
+</script>
+
+</body>
+</html>
