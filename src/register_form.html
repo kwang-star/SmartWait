@@ -10,7 +10,7 @@
 <body>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     
-    <div ng-app="myApp" ng-controller="myCtrl" class="container">
+    <div ng-app="formApp" ng-controller="formCtrl" class="container">
         <form action="register_form.html" method="post" id="register">
             <h1>Register New User</h1>
             <div class="field">
@@ -32,10 +32,10 @@
             $scope.today) -->
             <div class="field">
                 <label for="dob">Date Of Birth:</label>
-                <input type="date" ng-model="dob" id="dob" min="1870-01-01" max={{today}}>
+                <input type="date" ng-model="dob" id="dob" min="1870-01-01" max="" />
                 <small></small>
             </div>
-            <div>
+            <div class="field">
                 <label for="gender">Gender:</label>
                 <select ng-model="gend.selected" ng-options="value.id as value.value for value in genders" id="gender">
                     <option value=""></option>
@@ -48,8 +48,8 @@
             </div>
         </form>
     </div>
-    <script src="myApp.js"></script>
-    <script src="myCtrl.js"></script>
+    <script src="formApp.js"></script>
+    <script src="formCtrl.js"></script>
     <noscript>You need to enable JavaScript to view the full site.</noscript>
 </body>
 </html>

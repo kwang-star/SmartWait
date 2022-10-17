@@ -1,17 +1,23 @@
-app.controller('myCtrl', function($scope) {
+app.controller('formCtrl', function($scope) {
     $scope.gend ={"selected":null};
     $scope.genders= [{id: 1, value: "M"}, {id: 0, value: "F"}];
-    $scope.today = formatDate(new Date());
+	$scope.today= formatDate(new Date());
+	console.log(new Date().getMonth());
+	console.log($scope.today);
+
+	document.getElementById('dob').max=$scope.today;
 });
+
 
 function padTo2Digits(num) {
     return num.toString().padStart(2, '0');
 }
 
+//To format Date into YYYY-MM-DD
 function formatDate(date) {
     return [
         date.getFullYear(),
-        padTo2Digits(date.getMonth()),
+        padTo2Digits(date.getMonth()+1),
         padTo2Digits(date.getDate()),
     ].join('-');
 }
@@ -79,6 +85,26 @@ function validateEmail(input, requiredMsg, invalidMsg) {
 	return true;
 }
 
+//Not Needed for DOB, since input type date checks itself
+function validateDate(input, requiredMsg, invalidMsg) {
+	// check if the value is not empty
+	if (!hasValue(input, requiredMsg)) {
+		return false;
+	}
+	
+	// check if DOB is in future
+	if (new Date(input).getTime() > new Date().getTime()) {
+		return showError(input, invalidMsg);
+	}
+
+	// check if DOB is before "1870-01-01"
+	if (new Date(input).getTime() > new Date(1870-01-01).getTime()) {
+		return showError(input, invalidMsg);
+	}
+
+	return true;
+}
+
 const form = document.querySelector("#register");
 
 const NAME_REQUIRED = "Please enter your name";
@@ -100,11 +126,16 @@ form.addEventListener("submit", function (event) {
     let genderValid = selectedValue(form.elements["gender"], GENDER_REQUIRED);
 	// if valid, submit the form.
     validarr = [fnameValid, lnameValid, emailValid, dobValid, genderValid];
-	if (validarr.every(element => element === true)) {
+	if (validarr.every(element => element === true)) 
+	{
 		alert("Form to be posted.");
         console.log('registration form submitted');
+		window.location="reg_confirm.html";
 	}
-    alert("Error. Review input fields");
-    console.log('Error: Registration Form has invalid inputs');
+	else
+	{
+		alert("Error. Review input fields");
+    	console.log('Error: Registration Form has invalid inputs');
+	}
 });
 

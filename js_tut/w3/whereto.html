@@ -13,12 +13,20 @@
         
         <p id="demo"></p>
 
+        <!-- Placing scripts at the bottom of the <body> element improves the display speed, because script interpretation slows down the display. -->
         <script>
         document.getElementById("demo").innerHTML = "JavaScript in Body";
         </script>
 
         <button type="button" onclick="myFunction()">Try it</button>
 
+        <!-- External JS: 3 Ways of referencing, 
+            full URL, 
+            file path,
+            no path-->
+        <script src="https://www.w3schools.com/js/myScript.js"></script>
+        <script src="/js/myScript.js"></script>
+        <script src="myScript.js"></script>
 
     </body>
 </html>
