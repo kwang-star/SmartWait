@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+
+<div ng-app="" ng-init="name='John D';
+quantity=1;price=5;
+namesArr=['Jani','Hege','Kai'];
+namesObj=[
+{name:'Jani',country:'Norway'},
+{name:'Hege',country:'Sweden'},
+{name:'Kai',country:'Denmark'}]">
+  <h1> Data Binding</h1>
+  <p>Name: <input type="text" ng-model="name"></p>
+  <p ng-bind="name"></p>
+  Quantity: <input type="number" ng-model="quantity">
+  Costs:    <input type="number" ng-model="price">
+
+  Total in dollar: {{ quantity * price }}
+
+  <h1>Repeating HTML Elements</h1>
+  <ul>
+    <li ng-repeat="x in namesArr">
+      {{ x }}
+    </li>
+  </ul>
+  <ul>
+    <li ng-repeat="x in namesObj">
+      {{ x.name + ', ' + x.country }}
+    </li>
+  </ul>
+</div>
+
+</body>
+</html>

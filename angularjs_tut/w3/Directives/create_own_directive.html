@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <body ng-app="myApp">
+        <h1>create new directives</h1>
+        <p>name must be Camel Case, invoke w/ '-'</p> 
+
+        <h2>Attribute</h2>
+        <div test-directive>Attr</div>
+
+        <h2>Element NAme</h2>
+        <test-directive>Element Name</test-directive>
+
+        <h2>Class</h2>
+        <div class="test-directive"></div>
+        
+        <h2>Comment</h2>
+        <!-- directive: test-directive -->
+
+      <script>
+          var app = angular.module("myApp", []);
+          
+          app.directive("testDirective", function() {
+            return {
+              restrict : "A",
+              template : "I was made in a directive constructor (attribute)!"
+            };
+          });
+
+          app.directive("testDirective", function() {
+            return {
+              restrict : "E",
+              template : "I was made in a directive constructor (element name)!"
+            };
+          });
+
+          app.directive("testDirective", function() {
+            return {
+              restrict: "C",
+              template : "I was made in a directive constructor invoked from a class name!"
+            };
+          });
+
+          app.directive("testDirective", function() {
+            return {
+              restrict : "M",
+              replace : true,
+              template : "<p>I was made in a directive constructor invoked from a comment!</p>"
+            };
+          });
+      </script>
+    </body>
+</html>

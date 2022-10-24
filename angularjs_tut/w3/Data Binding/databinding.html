@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    
+    <body ng-app="myApp">
+        <div ng-controller="myCtrl">
+            Name: <input ng-model="name">
+            <br> <p> Bind: </p> <p ng-bind="name"></p>
+            <p> expression: {{name}}</p>
+            <p ng-click="changeName()"> Click Me</p>
+        </div>
+
+
+        <script>
+            var app = angular.module("myApp", []);
+
+            app.controller('myCtrl', function($scope) {
+                $scope.name = "John Doe";
+                $scope.changeName = function() {
+                    $scope.name = "Kim W";
+                }
+            });
+        </script>
+    </body>
+</html>
