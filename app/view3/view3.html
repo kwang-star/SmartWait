@@ -1,26 +1,26 @@
-<form action="" method="post" name="register">
+<form name="register" ng-submit="submit()">
     <h1>Register New User</h1>
     <div class="field">
         <label for="fname">First Name:</label>
-        <input type="text" id="fname" ng-model="fname" placeholder="Enter your firstname" required/>
+        <input type="text" id="fname" ng-model="fields.fname" placeholder="Enter your firstname" required/>
     </div>
     <div class="field">
         <label for="lname">Last Name:</label>
-        <input type="text" id="lname" ng-model="lname" placeholder="Enter your lastname" required/>
+        <input type="text" id="lname" ng-model="fields.lname" placeholder="Enter your lastname" required/>
     </div>
     <div class="field">
         <label for="email">Email:</label>
-        <input type="email" id="email" ng-model="email" placeholder="Enter your email address" required/>
+        <input type="email" id="email" ng-model="fields.email" placeholder="Enter your email address" required/>
     </div>
-    <!-- DOB Violation of putting non-passive event on scroll element (this is likely due to the 
-    $scope.today) -->
     <div class="field">
         <label for="dob">Date Of Birth:</label>
-        <input type="date" ng-model="dob" id="dob" min="1870-01-01" max="{{ CurrentDate | date:'yyyy-MM-dd'}}" required/>
+        <input type="date" ng-model="fields.dob" id="dob" min="1870-01-01" max="{{ currentDate | date:'yyyy-MM-dd'}}" required/>
+        <!-- <span ng-show="register.dob.$error.required">Required!</span>
+        <span ng-show="register.dob.$error.date">Not a valid date!</span> -->
     </div>
     <div class="field">
         <label for="gender">Gender:</label>
-        <select ng-model="selectedGender" ng-options="value for value in genders" id="gender" required>
+        <select ng-model="fields.gender" ng-options="value for value in genders" id="gender" required>
             <option></option>
         </select>
     </div>

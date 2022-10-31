@@ -16,5 +16,15 @@ describe('myApp.view3 module', function() {
       expect(mainScope.genders.length).toBe(2);
       expect(mainScope.currentDate).toBeDefined();
     });
+
+    it('form fields clears', function() {
+      mainScope.fields.fname 			    = 'K';
+      mainScope.fields.lname 			    = 'M';
+      mainScope.fields.email 			    = 'km@gmail.com';
+      mainScope.fields.dob 				    = new Date("2000-11-20");
+      mainScope.fields.selectedGender 	= 'M';
+      mainScope.submit();
+      expect(mainScope.fields).toEqual({});
+    });
   });
 });
