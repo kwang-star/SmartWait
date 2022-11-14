@@ -9,7 +9,8 @@ module.exports = function(config) {
       'lib/angular-route/angular-route.js',
       '../node_modules/angular-mocks/angular-mocks.js',
       'core/**/*.js',
-      'view*/**/*.js'
+      'view*/**/*.js',
+      'staff/**/*.js'
     ],
 
     autoWatch: true,
@@ -26,7 +27,7 @@ module.exports = function(config) {
     ],
 
     preprocessors:{
-      '!(lib)/*.js': 'coverage'
+      '!(lib)/**/*.js': 'coverage'
     },
 
     reporters: ['progress', 'coverage']

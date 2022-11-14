@@ -14,16 +14,24 @@ var app = angular.module('myApp.view3', ['ngRoute'])
   $scope.fields = {};
   $scope.submit = function() 
   {
-    // Incomplete Exploration of HTTP with AngularJS
+    var content = [];
+
     let data = JSON.stringify($scope.fields);
-    let url = "http://localhost:8081/demo/test.php";
+    let url = "http://localhost:8081/demo/req_patient.php";
     $http.post(url, data)
     .then(function (response){
-        $scope.content = response.data;
+        content = response.data;
+      
+        if (content.status == 1)
+        {
+          alert(content.msg);
+          $scope.fields = {};
+        }
+        else
+        {
+          alert("Submission Failed. Please contact administrator.");
+        }
       }
     );
-    alert("Form Submitted with" + JSON.stringify($scope.fields));
-    // console.log("Response" + $scope.content);
-    $scope.fields = {};
   };
 }]);
