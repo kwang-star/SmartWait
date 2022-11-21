@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 14, 2022 at 05:36 AM
+-- Generation Time: Nov 21, 2022 at 09:57 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -31,9 +31,17 @@ CREATE TABLE `appt` (
   `id` int(11) NOT NULL,
   `patient` int(11) NOT NULL,
   `time` datetime NOT NULL,
-  `doctor` enum('Doc A','Doc B','Doc C') NOT NULL,
+  `doctor` enum('Dr. A','Dr. B','Dr. C') NOT NULL,
   `note` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `appt`
+--
+
+INSERT INTO `appt` (`id`, `patient`, `time`, `doctor`, `note`) VALUES
+(26, 6, '2022-11-24 14:30:00', 'Dr. C', ''),
+(27, 0, '2022-11-24 16:00:00', 'Dr. C', NULL);
 
 -- --------------------------------------------------------
 
@@ -100,7 +108,8 @@ INSERT INTO `users` (`username`, `password`, `type`) VALUES
 -- Indexes for table `appt`
 --
 ALTER TABLE `appt`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `time_and_doctor` (`time`,`doctor`) USING BTREE;
 
 --
 -- Indexes for table `patients`
@@ -128,7 +137,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appt`
 --
 ALTER TABLE `appt`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `patients`
