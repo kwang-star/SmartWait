@@ -1,28 +1,33 @@
 <form name="reserve" ng-submit="submit()">
   <h1>Reservations</h1>
   <div class="field">
-      <label for="fname">Patient ID</label>
-      <input type="text" id="uid" ng-model="fields.fname" placeholder="Enter your patient id" required/>
+      <label for="uid">Patient ID</label>
+      <input type="text" name="uid" ng-model="fields.uid" placeholder="Enter your patient id" required/>
   </div>
   <div class="field">
-    <label for="fname">Doctor</label>
-    <select ng-model="fields.doctor" ng-options="value for value in doctors" id="doctor" required>
+    <label for="doctor">Doctor</label>
+    <select ng-model="fields.doctor" ng-options="value for value in doctors" name="doctor" 
+    ng-change="getAvailApptTime()" required>
       <option></option>
     </select>
   </div>
-  <div class="field">
-      <!-- Need to add restrictions against weekends   -->
+  <div class="field" ng-show="reserve.doctor.$valid">
       <label for="apptDay">Appointment Day</label>
-      <input type="date" ng-model="fields.apptDay" id="apptDay" min="{{ currentDate | date:'yyyy-MM-dd'}}" max="{{ future(currentDate, 10) | date:'yyyy-MM-dd'}}" required/>
+      <input type="date" ng-model="fields.apptDay" name="apptDay" 
+      min="{{ today | date:'yyyy-MM-dd'}}" max="{{ maxApptDate | date:'yyyy-MM-dd'}}" 
+      ng-change="getAvailApptTime()" required/>
   </div>
-  <div class="field">
+  <div class="field" ng-show="reserve.apptDay.$valid">
     <!-- Need to add restrictions to min if selected day is today -->
     <label for="apptTime">Appointment Time</label>
-    <input type="time" ng-model="fields.apptTime" id="apptTime" min="08:00:00" max="16:45:00" required/>
+    <select ng-model="fields.apptTime" name="apptTime" ng-options="value for value in apptIntervals" required>
+      <option></option>
+    </select>
+    <span ng-show="apptIntervals.length == 0">No available times for this day, choose another appointment day</span>
   </div>
   <div class="field">
-    <label for="fname">Appointment Reason</label>
-    <input type="text" id="apptReason" ng-model="fields.apptReason"/>
+    <label for="reason">Appointment Reason</label>
+    <input type="text" name="apptReason" ng-model="fields.apptReason" placeholder="Enter Appointment Reason"/>
   </div>
   <div class="field">
       <button type="submit">Submit</button>

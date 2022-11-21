@@ -29,7 +29,8 @@ var app = angular.module('myApp.view3', ['ngRoute'])
         }
         else
         {
-          alert("Submission Failed. Please contact administrator.");
+          alert("Submission Failed. Try again."
+          + "\n If reoccuring, please contact administrator.");
         }
       }
     );

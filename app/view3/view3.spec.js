@@ -71,7 +71,8 @@ describe('myApp.view3 module', function() {
       mainScope.submit();
       httpBackend.flush();
       expect(mainScope.fields).not.toEqual({});
-      expect(window.alert).toHaveBeenCalledWith("Submission Failed. Please contact administrator.");
+      expect(window.alert).toHaveBeenCalledWith("Submission Failed. Try again."
+      + "\n If reoccuring, please contact administrator.");
     });
   });
 });
