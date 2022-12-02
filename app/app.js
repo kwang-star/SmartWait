@@ -3,13 +3,32 @@
 // Declare app level module which depends on views, and core components
 angular.module('myApp', [
   'ngRoute',
-  'myApp.view1',
-  'myApp.view2',
-  'myApp.view3',
+  'myApp.viewWaitQueue',
+  'myApp.viewRsrv',
+  'myApp.viewUser',
+  'myApp.viewCheckIn',
   'myApp.version'
-]).
-config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
+])
+
+.config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {
   $locationProvider.hashPrefix('!');
 
-  $routeProvider.otherwise({redirectTo: '/view1'});
-}]);
+  $routeProvider.otherwise({redirectTo: '/viewWaitQueue'});
+}])
+
+.factory('myService', function ($http) {
+  return {
+    getServerCall: function (url) {
+      return $http.get(url).then(function (response) {
+        console.log(url + " " + JSON.stringify(response.data));
+        return response.data;
+      });
+    },
+    postServerCall: function (url, data) {
+      return $http.post(url, data).then(function (response) {
+        console.log(url + " " + JSON.stringify(response.data));
+        return response.data;
+      });
+    },
+  };
+});

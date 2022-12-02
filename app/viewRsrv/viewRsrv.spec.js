@@ -1,25 +1,25 @@
 'use strict';
 
-describe('myApp.view2 module', function () {
+describe('myApp.viewRsrv module', function () {
   var mainScope;
-  var view2Ctrl, httpBackend, http;
+  var viewRsrvCtrl, httpBackend, http;
 
-  beforeEach(module('myApp.view2'));
+  beforeEach(module('myApp.viewRsrv'));
 
   beforeEach(inject(function ($rootScope, $controller, $httpBackend, $http) {
     mainScope = $rootScope.$new();
     httpBackend = $httpBackend;
     http = $http;
-    view2Ctrl = $controller('View2Ctrl', { $scope: mainScope });
+    viewRsrvCtrl = $controller('viewRsrvCtrl', { $scope: mainScope });
   }));
   afterEach(function () {
     httpBackend.verifyNoOutstandingExpectation();
     httpBackend.verifyNoOutstandingRequest();
   });
 
-  describe('view2 controller', function () {
+  describe('viewRsrv controller', function () {
     it('should be initialized with', function () {
-      expect(view2Ctrl).toBeDefined();
+      expect(viewRsrvCtrl).toBeDefined();
       expect(mainScope.doctors.length).toBeGreaterThan(0);
       expect(mainScope.apptIntervals.length).toBe(0);
       expect(mainScope.today).toEqual(jasmine.any(Date));
@@ -92,64 +92,7 @@ describe('myApp.view2 module', function () {
       + "\n If reoccuring, please contact administrator.");
     });
 
-    // Below test are all for getAvailApptTime, which checks the form is valid or not
-    // which is not mocked in unit testing
-    // it('should not get intervals', function () {
-    //   // mainScope.reserve.apptDay.$invalid = true;
-    //   mainScope.fields = 
-    //   {
-    //     "apptDay": new Date("2022-11-22")
-    //   };
-
-    //   httpBackend.whenGET('http://localhost:8081/demo/appts.php')
-    //     .respond([]);
-
-    //   mainScope.getAvailApptTime();
-    //   httpBackend.flush();
-      
-    //   expect(mainScope.apptIntervals.length).toBe(0);
-    // });
-
-    // it('able to get Available Appointment Times', function () {
-    //   mainScope.fields = 
-    //   {
-    //     "apptDay": new Date("2022-11-22")
-    //   };
-
-    //   httpBackend.whenGET('http://localhost:8081/demo/appts.php')
-    //     .respond([]);
-
-    //   mainScope.getAvailApptTime();
-    //   httpBackend.flush();
-      
-    //   expect(mainScope.apptIntervals.length).toBe(17);
-    // });
-
-    // it('removes occupied appointment time', function () {
-    //   var get_response =
-    //   [
-    //     {
-    //       "id": "26",
-    //       "patient": "6",
-    //       "time": "2022-11-24 14:30:00",
-    //       "doctor": "Dr. C",
-    //       "note": ""
-    //     },
-    //     { 
-    //       "id": "27", 
-    //       "patient": "0", 
-    //       "time": "2022-11-24 16:00:00", 
-    //       "doctor": "Dr. C", 
-    //       "note": null 
-    //     }
-    //   ];
-      
-    //   httpBackend.whenGET('http://localhost:8081/demo/appts.php')
-    //     .respond(get_response);
-
-    //   mainScope.getAvailApptTime();
-    //   httpBackend.flush();
-    //   expect(mainScope.apptIntervals.length).toBe(17);
-    // });
+    // Tests for getAvailApptTime, which checks the form is valid or not
+    // is not mocked in unit testing. It will be e2e testing.
   });
 });

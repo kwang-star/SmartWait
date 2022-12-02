@@ -1,14 +1,14 @@
 'use strict';
-var app = angular.module('myApp.view3', ['ngRoute'])
+var app = angular.module('myApp.viewUser', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/view3', {
-    templateUrl: 'view3/view3.html',
-    controller: 'View3Ctrl'
+  $routeProvider.when('/viewUser', {
+    templateUrl: 'viewUser/viewUser.html',
+    controller: 'viewUserCtrl'
   });
 }])
 
-.controller('View3Ctrl', ['$scope', '$http', function($scope, $http) {  
+.controller('viewUserCtrl', ['$scope', '$http', function($scope, $http) {  
   $scope.genders = ["M", "F"];
   $scope.currentDate = new Date();
   $scope.fields = {};

@@ -1,25 +1,25 @@
 'use strict';
 
-describe('myApp.view3 module', function() {
-  var mainScope, view3Ctrl, httpBackend, http;
+describe('myApp.viewUser module', function() {
+  var mainScope, viewUserCtrl, httpBackend, http;
 
-  beforeEach(module('myApp.view3'));
+  beforeEach(module('myApp.viewUser'));
   beforeEach(inject(function($rootScope, $controller, $httpBackend, $http) {
     mainScope = $rootScope.$new();
     httpBackend = $httpBackend;
     http = $http;
-    view3Ctrl = $controller('View3Ctrl', {$scope: mainScope});
+    viewUserCtrl = $controller('viewUserCtrl', {$scope: mainScope});
   }));
   afterEach(function() {
     httpBackend.verifyNoOutstandingExpectation();
     httpBackend.verifyNoOutstandingRequest();
   });
 
-  describe('view3 controller', function(){
+  describe('viewUser controller', function(){
     
     //Check Initialization
     it('should be initialized with', function() {
-      expect(view3Ctrl).toBeDefined();
+      expect(viewUserCtrl).toBeDefined();
       expect(mainScope.genders.length).toBe(2);
       expect(mainScope.currentDate).toBeDefined();
       expect(mainScope.fields).toEqual({});

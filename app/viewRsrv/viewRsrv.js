@@ -1,15 +1,15 @@
 'use strict';
 
-angular.module('myApp.view2', ['ngRoute'])
+angular.module('myApp.viewRsrv', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/view2', {
-    templateUrl: 'view2/view2.html',
-    controller: 'View2Ctrl'
+  $routeProvider.when('/viewRsrv', {
+    templateUrl: 'viewRsrv/viewRsrv.html',
+    controller: 'viewRsrvCtrl'
   });
 }])
 
-.controller('View2Ctrl', ['$scope', '$http', function($scope, $http) {
+.controller('viewRsrvCtrl', ['$scope', '$http', function($scope, $http) {
   $scope.fields = {};
   //Future improvement: To allow staff to create options.
   $scope.doctors = ["Dr. A", "Dr. B", "Dr. C"];
@@ -143,43 +143,41 @@ angular.module('myApp.view2', ['ngRoute'])
   };
   
 }]);
-
   
+//stepMM is minutes from interval
+function createIntervals(startTime, endTime, stepMM = 30) {
+  //"01/01/2001" is just an arbitrary date
+  let until = Date.parse("01/01/2001 " + endTime);
+  let from = Date.parse("01/01/2001 " + startTime);
   
-  //stepMM is minutes from interval
-  function createIntervals(startTime, endTime, stepMM = 30) {
-    //"01/01/2001" is just an arbitrary date
-    let until = Date.parse("01/01/2001 " + endTime);
-    let from = Date.parse("01/01/2001 " + startTime);
-    
-    let intervalsPerHour = 60 / stepMM;
-    let milisecsPerHour = 60 * 60 * 1000;
-    let max = (Math.abs(until-from) / (milisecsPerHour))*intervalsPerHour;
-    let time = new Date(from);
-    let intervals = []; 
+  let intervalsPerHour = 60 / stepMM;
+  let milisecsPerHour = 60 * 60 * 1000;
+  let max = (Math.abs(until-from) / (milisecsPerHour))*intervalsPerHour;
+  let time = new Date(from);
+  let intervals = []; 
 
-    for (let i = 0; i <= max; i++) {
-      //To push date into array by value
-      intervals.push(new Date(time));
-      time.setMinutes(time.getMinutes() + stepMM);
-    }
+  for (let i = 0; i <= max; i++) {
+    //To push date into array by value
+    intervals.push(new Date(time));
+    time.setMinutes(time.getMinutes() + stepMM);
+  }
 
-    return intervals;
-  };
+  return intervals;
+};
 
-  //format type Date to "HH:MM"
-  function formatDateHHMM(date) {  
-    let hour = date.getHours();
-    let minute = date.getMinutes();
-    return padTo2Digits(hour) + ":" + padTo2Digits(minute);
-  };
+//format type Date to "HH:MM"
+function formatDateHHMM(date) {  
+  let hour = date.getHours();
+  let minute = date.getMinutes();
+  return padTo2Digits(hour) + ":" + padTo2Digits(minute);
+};
 
-  //format integer hr and min to "HH:MM"
-  function formatHHMM(hour, minute) {  
-    return padTo2Digits(hour) + ":" + padTo2Digits(minute);
-  };
+//format integer hr and min to "HH:MM"
+function formatHHMM(hour, minute) {  
+  return padTo2Digits(hour) + ":" + padTo2Digits(minute);
+};
 
-  //pad zeros in front if needed to output two digits
-  function padTo2Digits(num) {
-    return num.toString().padStart(2, '0');
-  };
+//pad zeros in front if needed to output two digits
+function padTo2Digits(num) {
+  return num.toString().padStart(2, '0');
+};
