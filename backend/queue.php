@@ -9,6 +9,7 @@ $_SESSION['conn'] = start_db();
 $waitQA_table = "wait_queue_appt";
 $waitQG_table = "wait_queue_gen";
 $waitQ_table_names = array( $waitQG_table, $waitQA_table);
+$response = "";
 
 /* POST: Client ask to modify queue
         1. add appointment to queue
@@ -43,7 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     // 2. Security: Re-evaluate what info to withhold
     // 3. Security: Check/Fix Cybersecurity vulnerabilities. 
     // 4. Generalization: make global variables for tables used >1 to make future changes easier
-    $response = "";
+    
     $json = file_get_contents('php://input');
     $data = json_decode($json);
 
@@ -64,8 +65,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             {
                 //Apointment either not stored, expired, or not for today
                 $response = array("status" => 0, "msg" => "Invalid Appt Id!\nAppointment may have expired or is not yet available for checkin.");
-                end_request($response);
-                return;
+                goto end;
             }
 
             //Get Appt Info
@@ -75,8 +75,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             if(count($appt_info) == 0)
             {
                 $response = array("status" => 0, "msg" => "Unexpected error: Appointment Not Found!");
-                end_request($response);
-                return;
+                goto end;
             }
             $appt_info = $appt_info[0];
 
@@ -87,8 +86,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             if(count($pat_info) == 0)
             {
                 $response = array("status" => 0, "msg" => "Unexpected error: Patient Information Not Found");
-                end_request($response);
-                return;
+                goto end;
             } 
             
             $pat_info = $pat_info[0];
@@ -102,8 +100,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             if ($result === FALSE) {
                 $response = array("status" => 0, "msg" => "Error adding appointment to queue!");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
-                end_request($response);
-                return;
+                goto end;
             }
 
             //Update Appt Queue
@@ -136,8 +133,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             if($result->num_rows == 0)
             {
                 $response = array("status" => 0, "msg" => "Invalid Patient Id!");
-                end_request($response);
-                return;
+                goto end;
             }
             $patName = $result->fetch_assoc();
             $patName = $patName["firstname"] . " " . $patName["lastname"];
@@ -243,8 +239,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             {
                 $response = array("status" => 0, "msg" => "Error cleaning up queue!");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
-                end_request($response);
-                return;
+                goto end;
             }
             // Future Improvement: When doctor-list is inputted by user and 
             // not hardcoded, also update initialization of queues
@@ -293,26 +288,30 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 }
 // GET: Client ask for wait queue
 elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
-    $opt = $_GET['option'];
-    switch ($opt)
+    $status = $_GET['status'] ?? null;
+    if ($status == 1)
     {
-        case "status":
-            //Get
-            $sql= "SELECT value FROM vars WHERE var='queue_status'";
-            $result = general_db_query($sql);
-            $response = $result->fetch_assoc();
-            break;
-        default:
-            //Get Queue
-            $sql= "SELECT * FROM $waitQG_table;";
-            $response = get_db_info($sql);
-            break;
+        
+        //Get
+        $sql= "SELECT value FROM vars WHERE var='queue_status'";
+        $result = general_db_query($sql);
+        $response = $result->fetch_assoc();
+        goto end;
+    }
+
+    $doc = $_GET['doctor'] ?? null;
+    if ($doc)
+    {
+        //Get Queue
+        $sql= "SELECT * FROM $waitQG_table WHERE doctor = '$doc';";
+        $response = get_db_info($sql);
     }
 }
 else{
 	$response = array("status" => 0, "msg" => "Request method not accepted!");
 }
 
+end:
 end_request($response);
 return;
 

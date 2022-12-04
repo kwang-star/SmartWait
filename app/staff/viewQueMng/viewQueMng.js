@@ -29,7 +29,7 @@ var app = angular.module('staffApp.viewQueMng', ['ngRoute'])
   //Get Queue Status
   function getQueueStatus() 
   {
-    let query = "option=status";
+    let query = "status=1";
     let url = "http://localhost:8081/demo/queue.php" + "?" + query;
     $http.get(url)
     .then(function (response){

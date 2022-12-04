@@ -1,4 +1,25 @@
-<p>To Be Wait Queue</p>
+<h1>Wait Queues</h1>
+<div ng-show="queueFlag == false" ng-init="queueFlag=false">
+    <p>Office is Closed. Wait for Business Hours.</p>
+</div>
 
+<div ng-show="queueFlag">
+    <table ng-repeat="(doc, queue) in queues ">
+        <thead>
+            <tr>
+                <th colspan="3">{{ doc }} Queue</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="pat in queue">
+                <td>{{ $index + 1 }}.</td>
+                <td>{{ pat.patName }}</td>
+                <td ng-if="pat.apptFlag">*</td>
+            </tr> 
+            <tr ng-if="queue.length == 0">
+                <td>No Patients in Queue</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 <noscript>You need to enable JavaScript to view the full site.</noscript>
-
