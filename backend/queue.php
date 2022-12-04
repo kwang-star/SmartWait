@@ -5,7 +5,11 @@ header("Access-Control-Allow-Headers: *");
 header("Content-Type: application/json; charset=UTF-8");
 
 require("global.php");
-print_r($GLOBALS['waitqueues']);
+$_SESSION['conn'] = start_db();
+$waitQA_table = "wait_queue_appt";
+$waitQG_table = "wait_queue_gen";
+$waitQ_table_names = array( $waitQG_table, $waitQA_table);
+
 /* POST: Client ask to modify queue
         1. add appointment to queue
             {   
@@ -46,7 +50,37 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             break;
         //Add to docotor walking queue
         case "add_walkin":
-            
+            // Get data from the REST client
+	        $uid    = "$data->uid"; 
+            $doctor = "$data->doctor";
+            $reason     = NULL;
+            if (property_exists($data, 'apptReason'))
+            {
+                $reason     = "$data->apptReason";
+            }
+    
+            //Verify Pat ID
+            $result = verify_patId($uid);
+            if($result->num_rows == 0)
+            {
+                $json = array("status" => 0, "msg" => "Invalid Patient Id!");
+                end_request($json);
+                return;
+            }
+            $patName = $result->fetch_assoc();
+            $patName = $patName["firstname"] . " " . $patName["lastname"];
+            echo $patName;
+
+            //Add to wait queue
+            $sql = "INSERT INTO $waitQG_table (patId, patName, apptFlag, doctor, note)"
+                    . " VALUES ('$uid', '$patName', '0', '$doctor', '$reason');";
+            $result = general_db_query($sql);
+            if ($result === FALSE) {
+                $json = array("status" => 0, "msg" => "Error adding walkin to queue!");
+                //echo "Error: " . $sql . "<br>" . $conn->error;
+                end_request($json);
+                return;
+            }
 
             break;
         case "next":
@@ -57,12 +91,26 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             // Future Improvement: When doctor-list is inputted by user and 
             // not hardcoded, also update initialization of queues
             $drs = array("Dr. A", "Dr. B", "Dr. C");
-            $GLOBALS['waitqueues'] = init_wait_queue($drs);
-            print_r($GLOBALS['waitqueues']);
+            $result = init_wait_queue($drs);
+            if ($result === FALSE) {
+                $json = array("status" => 0, "msg" => "Error starting queue!");
+                //echo "Error: " . $sql . "<br>" . $conn->error;
+                end_request($json);
+                return;
+            }
             break;
         //End Wait Queue
         case "end":
-            unset($GLOBALS['waitqueues']);
+            foreach ($waitQ_table_names as $table)
+            {
+                $result = general_db_query("DELETE FROM $table");
+                if ($result === FALSE) {
+                    $json = array("status" => 0, "msg" => "Error ending!");
+                    //echo "Error: " . $sql . "<br>" . $conn->error;
+                    end_request($json);
+                    return;
+                }
+            }
             //Future improvements: Further data analysis
             break;
         default:
@@ -97,7 +145,14 @@ function get_db_info($sql)
     return $r;
 }
 
-//Initialize Wait Queues
+//Perform specified $sql query on sql table
+function general_db_query($sql)
+{
+    $result = $_SESSION['conn']->query($sql);
+    return $result;
+}
+
+//Initialize Wait Queues (Appts)
 //Wait Queues Format:
 // {
 //     "Dr. A": 
@@ -132,18 +187,12 @@ function get_db_info($sql)
 // }
 function init_wait_queue($docList)
 {
+    global $waitQA_table;
     $table = "appt";
-    $out = array();
 
     //Create Queues for Each Doctor
     foreach ($docList as $doc)
     {
-        $drQues = array
-        (
-            "gen" => array(),
-            "appt"=> array()
-        );
-
         //Get Today's Appts For This Doctor
         //Currently, timezone diff is not not issue, since EST office close before 7pm EST.
         $today = date("Y-m-d"); 
@@ -161,18 +210,14 @@ function init_wait_queue($docList)
             //Ignore if appt time expired
             if ($time_expired >= $now)
             {
-                $drQues["appt"]["$time"] = array(
-                    "checkInFlag" => false,
-                    "apptId" => $appt["id"]
-                );
+                $sql = "INSERT INTO $waitQA_table (doctor, time, apptId, checkInFlag) "
+                        . "VALUES ('$doc', '$time', {$appt['id']},  0);";
+                $result = general_db_query($sql);
+                return $result;
             }
         }
-        ksort($drQues["appt"]); //Sort 
          
-        $out["$doc"] = $drQues;
     }
-    
-    return $out;
 }
 
 //Convert string date GMT to "hh:mm" EST 
@@ -182,17 +227,4 @@ function get_time($date_time)
     return date("H:i", $date);
 }
 
-function verify_patid($patId)
-{
-    //Check Patient Uid
-    $sql = "SELECT * FROM patients WHERE id=$uid";
-    $result = $_SESSION['conn']->query($sql);
-    print_r($result);
-    if($result->num_rows == 0)
-    {
-        $json = array("status" => 0, "msg" => "Invalid Patient Id!");
-        echo json_encode($json);
-        return;
-    }
-}
 ?>

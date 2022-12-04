@@ -4,9 +4,9 @@ if(!session_id())
 {
     session_start();
 }
-if(!isset($_SESSION['conn'])) {
-    $_SESSION['conn'] = start_db();
-}
+// if(!isset($_SESSION['conn'])) {
+//     $_SESSION['conn'] = start_db();
+// }
 
 function start_db()
 {
@@ -38,4 +38,12 @@ function end_request($json)
     close_db();
     echo json_encode($json);
 }
+
+
+function verify_patId($uid)
+{
+    $sql = "SELECT * FROM patients WHERE id=$uid";
+    return $_SESSION['conn']->query($sql);
+}
+
 ?>

@@ -37,7 +37,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     //Check Patient Uid
     $sql = "SELECT * FROM patients WHERE id=$uid";
     $result = $conn->query($sql);
-    print_r($result);
+    //print_r($result);
     if($result->num_rows == 0)
     {
         $json = array("status" => 0, "msg" => "Invalid Patient Id!");
