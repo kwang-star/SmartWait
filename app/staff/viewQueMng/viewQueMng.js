@@ -8,14 +8,19 @@ var app = angular.module('staffApp.viewQueMng', ['ngRoute'])
   });
 }])
 
-.controller('viewQueMngCtrl', ['$scope', '$http', function($scope, $http) {  
+.controller('viewQueMngCtrl', ['$scope', '$http', '$interval', function($scope, $http, $interval) {  
   $scope.queueFlag = false;
   getQueueStatus(); //Check Queue Status
-  $scope.fields = {};
   //Future improvement: Store list of doctors in database.
   $scope.doctors = ["Dr. A", "Dr. B", "Dr. C"];
   $scope.doc_stat = {};
   $scope.doctors.forEach (initDocStat);
+
+  //Start intervals 
+  //Future Improvement: 
+  //Performance: Make interval only occur in one location OR refresh appt on
+  //              change to appt queue.
+  var interval = $interval(refresh_appt, 15 * 60 *1000);
 
   //Future Improvement: Store info about current patient seeing doctor in db
   function initDocStat(doc)
@@ -34,7 +39,7 @@ var app = angular.module('staffApp.viewQueMng', ['ngRoute'])
     $http.get(url)
     .then(function (response){
         let content = response.data;
-        console.log(content.value);
+
         if (content.value == 0)
         {
           $scope.queueFlag = false;
@@ -85,6 +90,7 @@ var app = angular.module('staffApp.viewQueMng', ['ngRoute'])
         if (content.status == 1)
         {
           $scope.queueFlag = false;
+          $scope.doctors.forEach (initDocStat);
         }
       }
     );
@@ -104,19 +110,40 @@ var app = angular.module('staffApp.viewQueMng', ['ngRoute'])
     $http.post(url, data)
     .then(function (response){
         content = response.data;
-        
+        alert(content.msg);
+
         if (content.status == 1)
         {
           $scope.doc_stat[doc]["patient"] = content.patId;
-          console.log($scope.doc_stat);
         }
         else if (content.status == 0)
         {
-          alert(content.msg);
           initDocStat(doc);
         }
       }
     );
   };
+
+  //Refresh Appt List
+  function refresh_appt() {
+    var content = [];
+    let data = {
+      "cmd": "refresh_appts"
+    }
+
+    data = JSON.stringify(data);
+    let url = "http://localhost:8081/demo/queue.php";
+    $http.post(url, data)
+    .then(function (response){
+        content = response.data;
+        alert(content.msg);
+
+        if (content.status == 1)
+        {
+          $scope.initFlag = true;
+        }
+      }
+    );
+  }
 
 }]);

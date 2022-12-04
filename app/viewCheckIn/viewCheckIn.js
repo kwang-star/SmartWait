@@ -68,7 +68,7 @@ var app = angular.module('myApp.viewCheckIn', ['ngRoute'])
     $http.get(url)
     .then(function (response){
         let content = response.data;
-        console.log(content.value);
+
         if (content.value == 0)
         {
           $scope.startFlag = false;
