@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 21, 2022 at 09:57 AM
+-- Generation Time: Dec 04, 2022 at 05:16 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -41,7 +41,10 @@ CREATE TABLE `appt` (
 
 INSERT INTO `appt` (`id`, `patient`, `time`, `doctor`, `note`) VALUES
 (26, 6, '2022-11-24 14:30:00', 'Dr. C', ''),
-(27, 0, '2022-11-24 16:00:00', 'Dr. C', NULL);
+(27, 0, '2022-11-24 16:00:00', 'Dr. C', NULL),
+(29, 6, '2022-12-04 01:00:00', 'Dr. A', NULL),
+(31, 3, '2022-12-03 12:30:00', 'Dr. A', NULL),
+(60, 3, '2022-12-04 12:30:00', 'Dr. A', 'Annual');
 
 -- --------------------------------------------------------
 
@@ -63,8 +66,8 @@ CREATE TABLE `patients` (
 --
 
 INSERT INTO `patients` (`firstname`, `lastname`, `email`, `dob`, `gender`, `id`) VALUES
-('K', 'W', 'kw@gmail.com', '2022-11-09', 'F', 6),
-('Em', 'Stark', 'emstart@gmail.com', '2022-11-12', 'M', 23);
+('Em', 'Stark', 'emstart@gmail.com', '2022-11-12', 'M', 3),
+('K', 'W', 'kw@gmail.com', '2022-11-09', 'F', 6);
 
 -- --------------------------------------------------------
 
@@ -137,7 +140,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `appt`
 --
 ALTER TABLE `appt`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `patients`
