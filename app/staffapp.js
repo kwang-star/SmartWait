@@ -4,6 +4,7 @@
 angular.module('staffApp', [
   'ngRoute',
   'staffApp.patReq',
+  'staffApp.viewQueMng',
   'myApp.version'
 ]).
 config(['$locationProvider', '$routeProvider', function($locationProvider, $routeProvider) {

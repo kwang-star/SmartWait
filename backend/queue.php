@@ -39,6 +39,11 @@ $waitQ_table_names = array( $waitQG_table, $waitQA_table);
             }
 */
 if($_SERVER['REQUEST_METHOD'] == "POST"){
+    // Future Improvement: 1. Catch throws and better report errors for debugging
+    // 2. Security: Re-evaluate what info to withhold
+    // 3. Security: Check/Fix Cybersecurity vulnerabilities. 
+    // 4. Generalization: make global variables for tables used >1 to make future changes easier
+    $response = "";
     $json = file_get_contents('php://input');
     $data = json_decode($json);
 
@@ -58,8 +63,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             if(count($match) == 0)
             {
                 //Apointment either not stored, expired, or not for today
-                $json = array("status" => 0, "msg" => "Invalid Appt Id!\nAppointment may have expired or is not yet available for checkin.");
-                end_request($json);
+                $response = array("status" => 0, "msg" => "Invalid Appt Id!\nAppointment may have expired or is not yet available for checkin.");
+                end_request($response);
                 return;
             }
 
@@ -69,8 +74,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 
             if(count($appt_info) == 0)
             {
-                $json = array("status" => 0, "msg" => "Unexpected error: Appointment Not Found!");
-                end_request($json);
+                $response = array("status" => 0, "msg" => "Unexpected error: Appointment Not Found!");
+                end_request($response);
                 return;
             }
             $appt_info = $appt_info[0];
@@ -81,8 +86,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 
             if(count($pat_info) == 0)
             {
-                $json = array("status" => 0, "msg" => "Unexpected error: Patient Information Not Found");
-                end_request($json);
+                $response = array("status" => 0, "msg" => "Unexpected error: Patient Information Not Found");
+                end_request($response);
                 return;
             } 
             
@@ -95,9 +100,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             $result = general_db_query($sql);
 
             if ($result === FALSE) {
-                $json = array("status" => 0, "msg" => "Error adding appointment to queue!");
+                $response = array("status" => 0, "msg" => "Error adding appointment to queue!");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
-                end_request($json);
+                end_request($response);
                 return;
             }
 
@@ -109,6 +114,11 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
                 //shouldn't be too big of a problem even if this fails
             }
 
+            //Future Improvement: Display Appt Info to User
+            // $response = array(
+            //     "status" => 0, 
+            //     "msg" => $appt_info
+            // );
             break;
         //Handle walk-in checkin
         case "add_walkin":
@@ -125,8 +135,8 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             $result = verify_patId($uid);
             if($result->num_rows == 0)
             {
-                $json = array("status" => 0, "msg" => "Invalid Patient Id!");
-                end_request($json);
+                $response = array("status" => 0, "msg" => "Invalid Patient Id!");
+                end_request($response);
                 return;
             }
             $patName = $result->fetch_assoc();
@@ -137,14 +147,93 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
                     . " VALUES ('$uid', '$patName', '0', '$doctor', '$reason');";
             $result = general_db_query($sql);
             if ($result === FALSE) {
-                $json = array("status" => 0, "msg" => "Error adding walkin to queue!");
+                $response = array("status" => 0, "msg" => "Error adding walkin to queue!");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
-                end_request($json);
-                return;
+
             }
 
             break;
         case "next":
+            // Get data from the REST client
+	        $doc    = "$data->doctor";
+
+            //Future Improvement: Store/Calc Avg Wait Time of Each Doctor
+            $sql= "SELECT value FROM vars WHERE var='default_waittime'";
+            $waitTime = general_db_query($sql)->fetch_assoc();
+
+            $now = date("H:i");
+            $appt_priorty_time = date('H:i:s', strtotime($now . " +{$waitTime['value']} minutes"));
+
+            //Find Earliest Appt That Need to be Prioiritized 
+            $sql = "SELECT * FROM $waitQA_table WHERE time <= '$appt_priorty_time' AND checkInFlag = 1"
+                    . " AND doctor = '$doc'"
+                    . " ORDER BY $waitQA_table.time ASC LIMIT 1;";
+            $appts = get_db_info($sql);
+
+            //Found Appts, advance earliest appointment
+            if(count($appts) > 0)
+            {
+                $id = $appts[0]['apptId'];
+                //Remove appointment fom queues and appt table
+                //Future Improvement: Evaluate if check of db result from delete is needed
+                $sql= "DELETE FROM $waitQA_table WHERE $waitQA_table.apptId = $id";
+                general_db_query($sql);
+                $sql= "DELETE FROM $waitQG_table WHERE $waitQG_table.apptId = $id";
+                general_db_query($sql);
+                //Future Improvement: Mark status rather than delete for data gathering
+                $sql= "DELETE FROM appt WHERE appt.id = $id";
+                general_db_query($sql);
+
+                //Return PatId
+                //Future Improvement: Send more appt and patient info back to user
+                $response = array(
+                    "status" => 1, 
+                    "msg" => "$doc Queue Advanced.",
+                    "patId" => $appts[0]['patId']
+                );
+            }
+            // Else, if None found, advance the general wait queue based on time of checkin
+            else
+            {
+                //Get first person in wait queue
+                $sql = "SELECT * FROM $waitQG_table WHERE doctor = '$doc' LIMIT 1;";
+                $next_pat = get_db_info($sql); 
+                if(count($next_pat) == 0) 
+                {
+                    $response = array(
+                        "status" => 0, 
+                        "msg" => "No patients in $doc queue."
+                    );
+                }
+                else
+                {
+                    $id = $next_pat[0]['patId'];
+                    //Remove appointment fom queues and appt table
+                    //Future Improvement: Evaluate if check of db result from delete is needed
+                    $sql= "DELETE FROM $waitQG_table WHERE $waitQG_table.patId = $id";
+                    general_db_query($sql);
+
+                    $apptid = $next_pat[0]['apptId'];
+                    if (!is_null($apptid))
+                    {
+                        $sql= "DELETE FROM $waitQA_table WHERE $waitQA_table.apptId = $apptid";
+                        general_db_query($sql);
+                        //Future Improvement: Mark status rather than delete for data gathering
+                        $sql= "DELETE FROM appt WHERE appt.id = $apptid";
+                        general_db_query($sql);
+                    }
+                    
+                    //Return PatId
+                    //Future Improvement: Send more appt and patient info back to user
+                    $response = array(
+                        "status" => 1, 
+                        "msg" => "$doc Queue Advanced.",
+                        "patId" => $id
+                    );
+                }
+                
+            }
+            
             //Choose either from walk in queue or appointment queue
             break;
         //Start Wait Queue
@@ -152,9 +241,9 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             $results = end_queue();
             if (in_array(FALSE, $results)) 
             {
-                $json = array("status" => 0, "msg" => "Error cleaning up queue!");
+                $response = array("status" => 0, "msg" => "Error cleaning up queue!");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
-                end_request($json);
+                end_request($response);
                 return;
             }
             // Future Improvement: When doctor-list is inputted by user and 
@@ -164,21 +253,19 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             $results = init_wait_queue($drs);
             set_queue_status();
             if (in_array(FALSE, $results)) {
-                $json = array("status" => 0, "msg" => "Warning: May not have gotten all appointments!");
+                //Still count as success
+                $response = array("status" => 1, "msg" => "Warning: May not have gotten all appointments!");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
-                end_request($json);
-                return;
             }
             break;
         //End Wait Queue
         case "end":
             $results = end_queue();
+            clr_queue_status();
             if (in_array(FALSE, $results)) 
             {
-                $json = array("status" => 0, "msg" => "Error cleaning up queue!");
+                $response = array("status" => 1, "msg" => "Warning: May not have cleaned up all queues!");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
-                end_request($json);
-                return;
             }
             //Future improvements: Further data analysis
             break;
@@ -191,19 +278,18 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 
             $result = general_db_query($sql);
             if ($result === FALSE) {
-                $json = array("status" => 0, "msg" => "Error");
+                $response = array("status" => 0, "msg" => "Error");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
-                end_request($json);
-                return;
             }
             break;
         default:
-            $json = array("status" => 0, "msg" => "Command not identified!");
-            end_request($json);
-            return;
+            $response = array("status" => 0, "msg" => "Command not identified!");
     }
     
-    $json = array("status" => 1, "msg" => "$cmd completed");
+    if ($response == "") 
+    {
+        $response = array("status" => 1, "msg" => "$cmd completed");
+    }
 }
 // GET: Client ask for wait queue
 elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
@@ -214,20 +300,21 @@ elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
             //Get
             $sql= "SELECT value FROM vars WHERE var='queue_status'";
             $result = general_db_query($sql);
-            $json = $result->fetch_assoc();
+            $response = $result->fetch_assoc();
             break;
         default:
             //Get Queue
             $sql= "SELECT * FROM $waitQG_table;";
-            $json = get_db_info($sql);
+            $response = get_db_info($sql);
             break;
     }
 }
 else{
-	$json = array("status" => 0, "msg" => "Request method not accepted!");
+	$response = array("status" => 0, "msg" => "Request method not accepted!");
 }
 
-end_request($json);
+end_request($response);
+return;
 
 //Functions
 

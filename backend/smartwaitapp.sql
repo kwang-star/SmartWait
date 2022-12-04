@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 04, 2022 at 07:23 AM
+-- Generation Time: Dec 04, 2022 at 07:47 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -43,8 +43,7 @@ INSERT INTO `appt` (`id`, `patient`, `time`, `doctor`, `note`) VALUES
 (26, 6, '2022-11-24 14:30:00', 'Dr. C', ''),
 (27, 0, '2022-11-24 16:00:00', 'Dr. C', NULL),
 (29, 6, '2022-12-04 01:00:00', 'Dr. A', NULL),
-(31, 3, '2022-12-03 12:30:00', 'Dr. A', NULL),
-(60, 3, '2022-12-04 12:30:00', 'Dr. A', 'Annual');
+(60, 3, '2022-12-03 12:30:00', 'Dr. A', NULL);
 
 -- --------------------------------------------------------
 
@@ -67,7 +66,8 @@ CREATE TABLE `patients` (
 
 INSERT INTO `patients` (`firstname`, `lastname`, `email`, `dob`, `gender`, `id`) VALUES
 ('Em', 'Stark', 'emstart@gmail.com', '2022-11-12', 'M', 3),
-('K', 'W', 'kw@gmail.com', '2022-11-09', 'F', 6);
+('K', 'W', 'kw@gmail.com', '2022-11-09', 'F', 6),
+('Cam', 'Dod', 'camdod@aol.com', '2000-12-01', 'F', 24);
 
 -- --------------------------------------------------------
 
@@ -119,6 +119,7 @@ CREATE TABLE `vars` (
 --
 
 INSERT INTO `vars` (`var`, `value`) VALUES
+('default_waittime', '45'),
 ('queue_status', '1');
 
 -- --------------------------------------------------------
@@ -139,8 +140,7 @@ CREATE TABLE `wait_queue_appt` (
 --
 
 INSERT INTO `wait_queue_appt` (`doctor`, `time`, `apptId`, `checkInFlag`) VALUES
-('Dr. A', '20:00:00', 29, 1),
-('Dr. A', '07:30:00', 60, 1);
+('Dr. A', '20:00:00', 29, 0);
 
 -- --------------------------------------------------------
 
@@ -156,14 +156,6 @@ CREATE TABLE `wait_queue_gen` (
   `doctor` enum('Dr. A','Dr. B','Dr. C') NOT NULL,
   `note` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `wait_queue_gen`
---
-
-INSERT INTO `wait_queue_gen` (`patId`, `patName`, `apptFlag`, `apptId`, `doctor`, `note`) VALUES
-(3, 'Em Stark', 1, 60, 'Dr. A', 'Annual'),
-(6, 'K W', 1, 29, 'Dr. A', '');
 
 --
 -- Indexes for dumped tables
@@ -228,7 +220,7 @@ ALTER TABLE `appt`
 -- AUTO_INCREMENT for table `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `patient_requests`
