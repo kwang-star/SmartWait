@@ -15,6 +15,8 @@ angular.module('myApp.viewRsrv', ['ngRoute'])
   $scope.doctors = ["Dr. A", "Dr. B", "Dr. C"];
   $scope.today = new Date();
   $scope.today.setHours(0,0,0,0);
+  $scope.tomorrow = new Date();
+  $scope.tomorrow = $scope.tomorrow.setDate($scope.today.getDate() + 1);
   $scope.maxApptDate = new Date();
   $scope.maxApptDate = $scope.maxApptDate.setDate($scope.today.getDate() + 7);
 

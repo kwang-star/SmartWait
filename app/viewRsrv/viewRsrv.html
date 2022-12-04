@@ -14,11 +14,10 @@
   <div class="field" ng-show="reserve.doctor.$valid">
       <label for="apptDay">Appointment Day</label>
       <input type="date" ng-model="fields.apptDay" name="apptDay" 
-      min="{{ today | date:'yyyy-MM-dd'}}" max="{{ maxApptDate | date:'yyyy-MM-dd'}}" 
+      min="{{ tomorrow | date:'yyyy-MM-dd'}}" max="{{ maxApptDate | date:'yyyy-MM-dd'}}" 
       ng-change="getAvailApptTime()" required/>
   </div>
   <div class="field" ng-show="reserve.apptDay.$valid">
-    <!-- Need to add restrictions to min if selected day is today -->
     <label for="apptTime">Appointment Time</label>
     <select ng-model="fields.apptTime" name="apptTime" ng-options="value for value in apptIntervals" required>
       <option></option>
