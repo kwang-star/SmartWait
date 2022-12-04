@@ -49,7 +49,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         //Handle appointment checkin
         case "add_appt":
             // Get data from the REST client
-	        $apptId    = "$data->apptId"; 
+	        $apptId    = "$data->apptID"; 
 
             //Check appt id
             $sql= "SELECT * FROM $waitQA_table WHERE apptId = '$apptId';";
@@ -58,7 +58,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             if(count($match) == 0)
             {
                 //Apointment either not stored, expired, or not for today
-                $json = array("status" => 0, "msg" => "Invalid Appt Id!\n Appointment may have expired or is not yet available for checkin.");
+                $json = array("status" => 0, "msg" => "Invalid Appt Id!\nAppointment may have expired or is not yet available for checkin.");
                 end_request($json);
                 return;
             }
@@ -93,6 +93,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             $sql = "INSERT INTO $waitQG_table (patId, patName, apptFlag, apptId, doctor, note)"
                     . " VALUES ({$appt_info['patient']}, '$patName', '1', {$appt_info['id']}, '{$appt_info['doctor']}', '{$appt_info['note']}');";
             $result = general_db_query($sql);
+
             if ($result === FALSE) {
                 $json = array("status" => 0, "msg" => "Error adding appointment to queue!");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
@@ -101,7 +102,12 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             }
 
             //Update Appt Queue
-            $sql = "UPDATE $waitQA_table SET checkInFlag = '1' WHERE $waitQA_table.apptId = 60;";
+            $sql = "UPDATE $waitQA_table SET checkInFlag = '1' WHERE $waitQA_table.apptId = {$appt_info['id']};";
+            $result = general_db_query($sql);
+
+            if ($result === FALSE) {
+                //shouldn't be too big of a problem even if this fails
+            }
 
             break;
         //Handle walk-in checkin
@@ -143,12 +149,22 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             break;
         //Start Wait Queue
         case "start": 
+            $results = end_queue();
+            if (in_array(FALSE, $results)) 
+            {
+                $json = array("status" => 0, "msg" => "Error cleaning up queue!");
+                //echo "Error: " . $sql . "<br>" . $conn->error;
+                end_request($json);
+                return;
+            }
             // Future Improvement: When doctor-list is inputted by user and 
             // not hardcoded, also update initialization of queues
             $drs = array("Dr. A", "Dr. B", "Dr. C");
-            $result = init_wait_queue($drs);
-            if ($result === FALSE) {
-                $json = array("status" => 0, "msg" => "Error starting queue!");
+
+            $results = init_wait_queue($drs);
+            set_queue_status();
+            if (in_array(FALSE, $results)) {
+                $json = array("status" => 0, "msg" => "Warning: May not have gotten all appointments!");
                 //echo "Error: " . $sql . "<br>" . $conn->error;
                 end_request($json);
                 return;
@@ -156,15 +172,13 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             break;
         //End Wait Queue
         case "end":
-            foreach ($waitQ_table_names as $table)
+            $results = end_queue();
+            if (in_array(FALSE, $results)) 
             {
-                $result = general_db_query("DELETE FROM $table");
-                if ($result === FALSE) {
-                    $json = array("status" => 0, "msg" => "Error ending!");
-                    //echo "Error: " . $sql . "<br>" . $conn->error;
-                    end_request($json);
-                    return;
-                }
+                $json = array("status" => 0, "msg" => "Error cleaning up queue!");
+                //echo "Error: " . $sql . "<br>" . $conn->error;
+                end_request($json);
+                return;
             }
             //Future improvements: Further data analysis
             break;
@@ -174,7 +188,7 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             $exp_chk = date('H:i:s', strtotime($now . ' -15 minutes'));
 
             $sql = "DELETE FROM $waitQA_table WHERE `checkInFlag`=0 AND time < '$exp_chk';";
-            echo $sql;
+
             $result = general_db_query($sql);
             if ($result === FALSE) {
                 $json = array("status" => 0, "msg" => "Error");
@@ -193,6 +207,21 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
 }
 // GET: Client ask for wait queue
 elseif ($_SERVER['REQUEST_METHOD'] == "GET"){
+    $opt = $_GET['option'];
+    switch ($opt)
+    {
+        case "status":
+            //Get
+            $sql= "SELECT value FROM vars WHERE var='queue_status'";
+            $result = general_db_query($sql);
+            $json = $result->fetch_assoc();
+            break;
+        default:
+            //Get Queue
+            $sql= "SELECT * FROM $waitQG_table;";
+            $json = get_db_info($sql);
+            break;
+    }
 }
 else{
 	$json = array("status" => 0, "msg" => "Request method not accepted!");
@@ -218,8 +247,33 @@ function get_db_info($sql)
 //Perform specified $sql query on sql table
 function general_db_query($sql)
 {
-    $result = $_SESSION['conn']->query($sql);
-    return $result;
+    return $_SESSION['conn']->query($sql);
+}
+
+//Set Queue Status
+function set_queue_status()
+{
+    $sql = "UPDATE vars SET value = '1' WHERE vars.var = 'queue_status';";
+    return $_SESSION['conn']->query($sql);
+}
+
+//Clr Queue Status
+function clr_queue_status()
+{
+    $sql = "UPDATE vars SET value = '0' WHERE vars.var = 'queue_status';";
+    return $_SESSION['conn']->query($sql);
+}
+
+//End Queue
+function end_queue()
+{
+    global $waitQ_table_names;
+    $results = array();
+    foreach ($waitQ_table_names as $table)
+    {
+        array_push($results,general_db_query("DELETE FROM $table"));
+    }
+    return $results;
 }
 
 //Initialize Wait Queues (Appts)
@@ -259,6 +313,7 @@ function init_wait_queue($docList)
 {
     global $waitQA_table;
     $table = "appt";
+    $results = array();
 
     //Create Queues for Each Doctor
     foreach ($docList as $doc)
@@ -282,11 +337,13 @@ function init_wait_queue($docList)
             // {
                 $sql = "INSERT INTO $waitQA_table (doctor, time, apptId, checkInFlag) "
                         . "VALUES ('$doc', '$time', {$appt['id']},  0);";
-                $result = general_db_query($sql);
-                return $result;
+                array_push($results, general_db_query($sql));
+                
             // }
         } 
     }
+
+    return $results;
 }
 
 //Convert string date GMT to "hh:mm" EST 
