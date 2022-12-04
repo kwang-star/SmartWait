@@ -2,7 +2,7 @@
   <h1>Reservations</h1>
   <div class="field">
       <label for="uid">Patient ID</label>
-      <input type="text" name="uid" ng-model="fields.uid" placeholder="Enter your patient id" required/>
+      <input type="number" name="uid" ng-model="fields.uid" placeholder="Enter your patient id" min="1" required/>
   </div>
   <div class="field">
     <label for="doctor">Doctor</label>

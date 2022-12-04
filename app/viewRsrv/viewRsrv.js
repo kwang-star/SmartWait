@@ -103,40 +103,45 @@ angular.module('myApp.viewRsrv', ['ngRoute'])
     let minHr = 8;
     let minMin = 0;
     let maxHr = 16;
-    if ($scope.fields.apptDay.getTime() === $scope.today.getTime())
-    {
-      //Next Earliest Appointment Time is 30min in future.
-      let currentTime = new Date();
-      currentTime.setMinutes(currentTime.getMinutes() + 30);
 
-      //If earliest next appt time is past latest appt time, return.
-      if ((currentTime.getHours() > maxHr) ||
-      ((currentTime.getHours() == maxHr) && (currentTime.getMinutes() > 0)))
-      {
-        return [];
-      }
+    //For now, removed functionality to make appointment for the same day
+    //  -Mainly due to identified conflict if walk-in takes an open appointment 
+    //    and skips other earlier walk-ins
+    //Retained in case of future need
+    // if ($scope.fields.apptDay.getTime() === $scope.today.getTime())
+    // {
+    //   //Next Earliest Appointment Time is 30min in future.
+    //   let currentTime = new Date();
+    //   currentTime.setMinutes(currentTime.getMinutes() + 30);
 
-      //Check what is next ealiest Appt Time
-      let hourCheck = currentTime.getHours();
-      let minCheck = currentTime.getMinutes();
-      if(hourCheck >= minHr)
-      {
-        minHr = hourCheck;
-        if (minCheck == 0)
-        {
-          minMin = 0;
-        }
-        else if (minCheck <= 30)
-        {
-          minMin = 30;
-        }
-        else 
-        {
-          minHr++;
-          minMin = 0;
-        }
-      }
-    }
+    //   //If earliest next appt time is past latest appt time, return.
+    //   if ((currentTime.getHours() > maxHr) ||
+    //   ((currentTime.getHours() == maxHr) && (currentTime.getMinutes() > 0)))
+    //   {
+    //     return [];
+    //   }
+
+    //   //Check what is next ealiest Appt Time
+    //   let hourCheck = currentTime.getHours();
+    //   let minCheck = currentTime.getMinutes();
+    //   if(hourCheck >= minHr)
+    //   {
+    //     minHr = hourCheck;
+    //     if (minCheck == 0)
+    //     {
+    //       minMin = 0;
+    //     }
+    //     else if (minCheck <= 30)
+    //     {
+    //       minMin = 30;
+    //     }
+    //     else 
+    //     {
+    //       minHr++;
+    //       minMin = 0;
+    //     }
+    //   }
+    // }
     
     return createIntervals(formatHHMM(minHr, minMin), formatHHMM(maxHr, 0))
                             .map(formatDateHHMM);

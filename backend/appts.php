@@ -34,6 +34,16 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
         $reason     = "$data->apptReason";
     }
     
+    //Check Patient Uid
+    $sql = "SELECT * FROM patients WHERE id=$uid";
+    $result = $conn->query($sql);
+    print_r($result);
+    if($result->num_rows == 0)
+    {
+        $json = array("status" => 0, "msg" => "Invalid Patient Id!");
+        echo json_encode($json);
+        return;
+    }
 
     //Insert new record
     $sql = "INSERT INTO $table (patient, time, doctor, note)

@@ -9,4 +9,20 @@ var app = angular.module('myApp.viewCheckIn', ['ngRoute'])
 }])
 
 .controller('viewCheckInCtrl', ['$scope', '$http', function($scope, $http) {  
+  $scope.startFlag = true;
+  $scope.fields = {};
+  //Future improvement: Store list of doctors in database.
+  $scope.doctors = ["Dr. A", "Dr. B", "Dr. C"];
+
+
+  $scope.submitAppt = function() 
+  {
+
+  };
+
+  $scope.submitWalkIn = function() 
+  {
+    
+  };
+
 }]);

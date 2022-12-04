@@ -1,10 +1,42 @@
 <h1>Patient Check In</h1>
-<div>
-    <button>Appointment</button>
-    <button>No Appointment</button>
+<div ng-show="startFlag">
+    <button ng-click="apptFormFlag = true; walkInFormFlag = false; startFlag = false" ng-init="apptFormFlag=false">Appointment</button>
+    <button ng-click="apptFormFlag = false; walkInFormFlag = true; startFlag = false" ng-init="walkInFormFlag=false">No Appointment</button>
 </div>
 
-<form name="checkin" ng-submit="submit()">
-</form>
+<div ng-show="startFlag == false">
+    <button ng-click="startFlag = true" >Back</button>
+
+    <form name="checkinAppt" ng-submit="submitAppt()" ng-show="apptFormFlag">
+        <div class="field">
+            <label for="apptID">Appointment ID:</label>
+            <input type="number" name="apptID" ng-model="apptID" min="1" required/>
+        </div>
+        <div class="field">
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+
+    <form name="checkinWalkIn" ng-submit="submitWalkIn()" ng-show="walkInFormFlag">
+        <div class="field">
+            <label for="uid">Patient ID</label>
+            <input type="number" name="uid" ng-model="fields.uid" placeholder="Enter your patient id" min="1" required/>
+        </div>
+        <div class="field">
+          <label for="doctor">Doctor</label>
+          <select ng-model="fields.doctor" ng-options="value for value in doctors" name="doctor" required>
+            <option></option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="reason">Visit Reason</label>
+          <input type="text" name="apptReason" ng-model="fields.apptReason" placeholder="Enter Appointment Reason"/>
+        </div>
+        <div class="field">
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</div>
+
 
 <noscript>You need to enable JavaScript to view the full site.</noscript>
