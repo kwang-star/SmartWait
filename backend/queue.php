@@ -33,6 +33,10 @@ $waitQ_table_names = array( $waitQG_table, $waitQA_table);
             {
                 cmd: end
             }
+        6. clean up expired appts
+            {
+                cmd: refresh_appts
+            }
 */
 if($_SERVER['REQUEST_METHOD'] == "POST"){
     $json = file_get_contents('php://input');
@@ -42,13 +46,65 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
     $cmd = $data->cmd;
 	switch ($cmd)
     {
+        //Handle appointment checkin
         case "add_appt":
+            // Get data from the REST client
+	        $apptId    = "$data->apptId"; 
+
             //Check appt id
-            get_db_info();
-            //If none, return appt not match
-            //If exist, Add Appt to appointment queue
+            $sql= "SELECT * FROM $waitQA_table WHERE apptId = '$apptId';";
+            $match = get_db_info($sql);
+
+            if(count($match) == 0)
+            {
+                //Apointment either not stored, expired, or not for today
+                $json = array("status" => 0, "msg" => "Invalid Appt Id!\n Appointment may have expired or is not yet available for checkin.");
+                end_request($json);
+                return;
+            }
+
+            //Get Appt Info
+            $sql= "SELECT * FROM appt WHERE id = '$apptId';";
+            $appt_info = get_db_info($sql);
+
+            if(count($appt_info) == 0)
+            {
+                $json = array("status" => 0, "msg" => "Unexpected error: Appointment Not Found!");
+                end_request($json);
+                return;
+            }
+            $appt_info = $appt_info[0];
+
+            //Get Patient Info
+            $sql = "SELECT * FROM patients WHERE id={$appt_info['patient']};";
+            $pat_info = get_db_info($sql);
+
+            if(count($pat_info) == 0)
+            {
+                $json = array("status" => 0, "msg" => "Unexpected error: Patient Information Not Found");
+                end_request($json);
+                return;
+            } 
+            
+            $pat_info = $pat_info[0];
+            $patName = $pat_info["firstname"] . " " . $pat_info["lastname"];
+
+            //Add Appt to Queues
+            $sql = "INSERT INTO $waitQG_table (patId, patName, apptFlag, apptId, doctor, note)"
+                    . " VALUES ({$appt_info['patient']}, '$patName', '1', {$appt_info['id']}, '{$appt_info['doctor']}', '{$appt_info['note']}');";
+            $result = general_db_query($sql);
+            if ($result === FALSE) {
+                $json = array("status" => 0, "msg" => "Error adding appointment to queue!");
+                //echo "Error: " . $sql . "<br>" . $conn->error;
+                end_request($json);
+                return;
+            }
+
+            //Update Appt Queue
+            $sql = "UPDATE $waitQA_table SET checkInFlag = '1' WHERE $waitQA_table.apptId = 60;";
+
             break;
-        //Add to docotor walking queue
+        //Handle walk-in checkin
         case "add_walkin":
             // Get data from the REST client
 	        $uid    = "$data->uid"; 
@@ -69,7 +125,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
             }
             $patName = $result->fetch_assoc();
             $patName = $patName["firstname"] . " " . $patName["lastname"];
-            echo $patName;
 
             //Add to wait queue
             $sql = "INSERT INTO $waitQG_table (patId, patName, apptFlag, doctor, note)"
@@ -112,6 +167,21 @@ if($_SERVER['REQUEST_METHOD'] == "POST"){
                 }
             }
             //Future improvements: Further data analysis
+            break;
+        case "refresh_appts":
+            //Remove appointments expired and not checked in
+            $now = date("H:i");
+            $exp_chk = date('H:i:s', strtotime($now . ' -15 minutes'));
+
+            $sql = "DELETE FROM $waitQA_table WHERE `checkInFlag`=0 AND time < '$exp_chk';";
+            echo $sql;
+            $result = general_db_query($sql);
+            if ($result === FALSE) {
+                $json = array("status" => 0, "msg" => "Error");
+                //echo "Error: " . $sql . "<br>" . $conn->error;
+                end_request($json);
+                return;
+            }
             break;
         default:
             $json = array("status" => 0, "msg" => "Command not identified!");
@@ -208,15 +278,14 @@ function init_wait_queue($docList)
             $now = date("H:i");
 
             //Ignore if appt time expired
-            if ($time_expired >= $now)
-            {
+            // if ($time_expired >= $now)
+            // {
                 $sql = "INSERT INTO $waitQA_table (doctor, time, apptId, checkInFlag) "
                         . "VALUES ('$doc', '$time', {$appt['id']},  0);";
                 $result = general_db_query($sql);
                 return $result;
-            }
-        }
-         
+            // }
+        } 
     }
 }
 
@@ -227,4 +296,37 @@ function get_time($date_time)
     return date("H:i", $date);
 }
 
+function cleanup($docList)
+{
+    global $waitQA_table;
+    $table = "appt";
+
+    //Create Queues for Each Doctor
+    foreach ($docList as $doc)
+    {
+        //Get Today's Appts For This Doctor
+        //Currently, timezone diff is not not issue, since EST office close before 7pm EST.
+        $today = date("Y-m-d"); 
+        $sql = "SELECT * FROM $table WHERE doctor='$doc' AND time LIKE '$today%'";
+        $appt_info = get_db_info($sql);
+        //print_r($appt_info);
+
+        // Fill In Appt Queue With Existing Appointments
+        foreach($appt_info as $appt)
+        {
+            $time = get_time($appt["time"]);
+            $time_expired = date('H:i', strtotime($time . ' +15 minutes'));
+            $now = date("H:i");
+
+            //Ignore if appt time expired
+            if ($time_expired >= $now)
+            {
+                $sql = "INSERT INTO $waitQA_table (doctor, time, apptId, checkInFlag) "
+                        . "VALUES ('$doc', '$time', {$appt['id']},  0);";
+                $result = general_db_query($sql);
+                return $result;
+            }
+        } 
+    }
+}
 ?>
