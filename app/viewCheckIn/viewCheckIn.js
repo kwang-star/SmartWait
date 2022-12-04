@@ -41,7 +41,23 @@ var app = angular.module('myApp.viewCheckIn', ['ngRoute'])
   //Walk In Check In
   $scope.submitWalkIn = function() 
   {
+    var content = [];
 
+    $scope.fields.cmd = "add_walkin";
+    let data = JSON.stringify($scope.fields);
+    let url = "http://localhost:8081/demo/queue.php";
+    $http.post(url, data)
+    .then(function (response){
+        content = response.data;
+        alert(content.msg);
+
+        if (content.status == 1)
+        {
+          $scope.fields = {};
+          $scope.initFlag = true;
+        }
+      }
+    );
   };
 
   //Get Queue Status
