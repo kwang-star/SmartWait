@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 04, 2022 at 11:44 PM
+-- Generation Time: Dec 05, 2022 at 04:44 AM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -77,6 +77,53 @@ CREATE TABLE `users` (
   `type` enum('staff','patient') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vars`
+--
+
+CREATE TABLE `vars` (
+  `var` varchar(25) NOT NULL,
+  `value` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `vars`
+--
+
+INSERT INTO `vars` (`var`, `value`) VALUES
+('default_waittime', '45'),
+('queue_status', '1');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `wait_queue_appt`
+--
+
+CREATE TABLE `wait_queue_appt` (
+  `doctor` enum('Dr. A','Dr. B','Dr. C') NOT NULL,
+  `time` time NOT NULL,
+  `apptId` int(11) NOT NULL,
+  `checkInFlag` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `wait_queue_gen`
+--
+
+CREATE TABLE `wait_queue_gen` (
+  `patId` int(11) NOT NULL,
+  `patName` varchar(50) NOT NULL,
+  `apptFlag` tinyint(1) NOT NULL,
+  `apptId` int(11) DEFAULT NULL,
+  `doctor` enum('Dr. A','Dr. B','Dr. C') NOT NULL,
+  `note` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 --
 -- Indexes for dumped tables
 --
@@ -107,6 +154,26 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`username`);
 
 --
+-- Indexes for table `vars`
+--
+ALTER TABLE `vars`
+  ADD PRIMARY KEY (`var`),
+  ADD UNIQUE KEY `var` (`var`);
+
+--
+-- Indexes for table `wait_queue_appt`
+--
+ALTER TABLE `wait_queue_appt`
+  ADD UNIQUE KEY `apptId` (`apptId`);
+
+--
+-- Indexes for table `wait_queue_gen`
+--
+ALTER TABLE `wait_queue_gen`
+  ADD UNIQUE KEY `patId` (`patId`),
+  ADD UNIQUE KEY `apptId` (`apptId`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -126,7 +193,7 @@ ALTER TABLE `patients`
 -- AUTO_INCREMENT for table `patient_requests`
 --
 ALTER TABLE `patient_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
