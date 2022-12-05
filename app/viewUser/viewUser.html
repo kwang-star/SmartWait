@@ -1,0 +1,32 @@
+<form name="register" ng-submit="submit()">
+    <h1>Register New User</h1>
+    <div class="field">
+        <label for="fname">First Name:</label>
+        <input type="text" id="fname" ng-model="fields.fname" placeholder="Enter your firstname" required/>
+    </div>
+    <div class="field">
+        <label for="lname">Last Name:</label>
+        <input type="text" id="lname" ng-model="fields.lname" placeholder="Enter your lastname" required/>
+    </div>
+    <div class="field">
+        <label for="email">Email:</label>
+        <input type="email" id="email" ng-model="fields.email" placeholder="Enter your email address" required/>
+    </div>
+    <div class="field">
+        <label for="dob">Date Of Birth:</label>
+        <input type="date" ng-model="fields.dob" id="dob" min="1870-01-01" max="{{ currentDate | date:'yyyy-MM-dd'}}" required/>
+        <!-- <span ng-show="register.dob.$error.required">Required!</span>
+        <span ng-show="register.dob.$error.date">Not a valid date!</span> -->
+    </div>
+    <div class="field">
+        <label for="gender">Gender:</label>
+        <select ng-model="fields.gender" ng-options="value for value in genders" id="gender" required>
+            <option></option>
+        </select>
+    </div>
+    <div class="field">
+        <button type="submit">Submit</button>
+    </div>
+</form>
+
+<noscript>You need to enable JavaScript to view the full site.</noscript>

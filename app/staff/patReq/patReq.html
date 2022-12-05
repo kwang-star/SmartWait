@@ -1,0 +1,15 @@
+<h1>Patient Requests</h1>
+<table>
+  <tr ng-repeat="x in reqList">
+    <td>{{ x.id }}</td>
+    <td>{{ x.firstname }}</td>
+    <td>{{ x.lastname }}</td>
+    <td>{{ x.dob }}</td>
+    <td>{{ x.gender }}</td>
+    <td>{{ x.email }}</td>
+    <td> <button ng-click="approve(x, $index)">Approve</button> </td>
+    <td> <button ng-click="reject(x, $index)">Reject</button> </td>
+  </tr> 
+</table>
+
+<p ng-if="reqList.length == 0">There is no new patient requests</p>

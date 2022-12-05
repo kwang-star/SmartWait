@@ -1,0 +1,36 @@
+<form name="reserve" ng-submit="submit()">
+  <h1>Reservations</h1>
+  <div class="field">
+      <label for="uid">Patient ID</label>
+      <input type="number" name="uid" ng-model="fields.uid" placeholder="Enter your patient id" min="1" required/>
+  </div>
+  <div class="field">
+    <label for="doctor">Doctor</label>
+    <select ng-model="fields.doctor" ng-options="value for value in doctors" name="doctor" 
+    ng-change="getAvailApptTime()" required>
+      <option></option>
+    </select>
+  </div>
+  <div class="field" ng-show="reserve.doctor.$valid">
+      <label for="apptDay">Appointment Day</label>
+      <input type="date" ng-model="fields.apptDay" name="apptDay" 
+      min="{{ tomorrow | date:'yyyy-MM-dd'}}" max="{{ maxApptDate | date:'yyyy-MM-dd'}}" 
+      ng-change="getAvailApptTime()" required/>
+  </div>
+  <div class="field" ng-show="reserve.apptDay.$valid">
+    <label for="apptTime">Appointment Time</label>
+    <select ng-model="fields.apptTime" name="apptTime" ng-options="value for value in apptIntervals" required>
+      <option></option>
+    </select>
+    <span ng-show="apptIntervals.length == 0">No available times for this day, choose another appointment day</span>
+  </div>
+  <div class="field">
+    <label for="reason">Appointment Reason</label>
+    <input type="text" name="apptReason" ng-model="fields.apptReason" placeholder="Enter Appointment Reason"/>
+  </div>
+  <div class="field">
+      <button type="submit">Submit</button>
+  </div>
+</form>
+
+<noscript>You need to enable JavaScript to view the full site.</noscript>

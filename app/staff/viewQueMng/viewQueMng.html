@@ -1,0 +1,21 @@
+<h1>Queue Management</h1>
+<div ng-show="queueFlag == false" ng-init="queueFlag=false">
+    <button ng-click="queueFlag = true; submitStart()">Start</button>
+</div>
+
+<div ng-show="queueFlag">
+    <button ng-click="queueFlag = false; submitEnd()">End</button>
+    <table>
+      <tr>
+        <th>Doctor</th>
+        <th>Patient ID</th>
+        <th></th>
+      </tr>
+      <tr ng-repeat="(doc, doc_info) in doc_stat">
+        <td>{{ doc }}</td>
+        <td>{{ doc_info.patient }}</td>
+        <td> <button ng-click="submitNext(doc)">Next</button> </td>
+      </tr> 
+    </table>
+</div>
+<noscript>You need to enable JavaScript to view the full site.</noscript>
